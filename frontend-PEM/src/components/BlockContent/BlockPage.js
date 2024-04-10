@@ -109,7 +109,7 @@ function BlockPage(props) {
       blockGroups.forEach((doc) => {
         let blockGroup = doc.data();
         if (
-          blockGroup.title ===
+          blockGroup.title.replace(/_/g, " ") ===
           props.location.state.blockGroupTitle.replace(/_/g, " ")
         ) {
           blockGroup.blockList.forEach((block) => {

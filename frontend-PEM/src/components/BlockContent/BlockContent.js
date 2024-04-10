@@ -119,7 +119,7 @@ function BlockContent(props) {
       let newState;
       bg.forEach((doc) => {
         let data = doc.data();
-        if (data.title === group) {
+        if (data.title.replace(/_/g, " ") === group) {
           newState = {
             title: data.title,
             description: data.description,
