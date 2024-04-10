@@ -7,6 +7,12 @@ import TwitterIcon from "mdi-material-ui/Twitter";
 import YahooIcon from "mdi-material-ui/Yahoo";
 
 const authProviders = [
+  {
+    providerId: "google.com",
+    color: "#4285f4",
+    icon: <GoogleIcon />,
+    name: "Google",
+  },
   // {
   //   providerId: "apple.com",
   //   color: "#000000",
@@ -25,12 +31,6 @@ const authProviders = [
   //   icon: <GitHubCircleIcon />,
   //   name: "GitHub"
   // },
-  {
-    providerId: "google.com",
-    color: "#4285f4",
-    icon: <GoogleIcon />,
-    name: "Google",
-  },
   // {
   //   providerId: "microsoft.com",
   //   color: "#f65314",

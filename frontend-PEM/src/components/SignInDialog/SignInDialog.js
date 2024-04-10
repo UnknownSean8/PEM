@@ -60,6 +60,7 @@ class SignInDialog extends Component {
     super(props);
 
     this.state = initialState;
+    this.emailPassword = false;
   }
 
   getSignInButton = () => {
@@ -414,60 +415,67 @@ class SignInDialog extends Component {
         <DialogContent>
           <Hidden xsDown>
             <Grid container direction="row">
-              <Grid item xs={4}>
+              <Grid item xs={this.emailPassword ? 4 : 11}>
                 <AuthProviderList
                   performingAction={performingAction}
                   onAuthProviderClick={this.signInWithAuthProvider}
                 />
               </Grid>
 
-              <Grid item xs={1}>
-                <Divider className={classes.divider} orientation="vertical" />
-              </Grid>
-
-              <Grid item xs={7}>
-                <Grid container direction="column" spacing={2}>
-                  <Grid item xs>
-                    <TextField
-                      autoComplete="email"
-                      disabled={performingAction}
-                      error={!!(errors && errors.emailAddress)}
-                      fullWidth
-                      helperText={
-                        errors && errors.emailAddress
-                          ? errors.emailAddress[0]
-                          : ""
-                      }
-                      label="E-mail address"
-                      placeholder="john@doe.com"
-                      required
-                      type="email"
-                      value={emailAddress}
-                      variant="outlined"
-                      onChange={this.handleEmailAddressChange}
+              {this.emailPassword && (
+                <>
+                  <Grid item xs={1}>
+                    <Divider
+                      className={classes.divider}
+                      orientation="vertical"
                     />
                   </Grid>
 
-                  <Grid item xs>
-                    <TextField
-                      autoComplete="current-password"
-                      disabled={performingAction}
-                      error={!!(errors && errors.password)}
-                      fullWidth
-                      helperText={
-                        errors && errors.password ? errors.password[0] : ""
-                      }
-                      label="Password"
-                      placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                      required
-                      type="password"
-                      value={password}
-                      variant="outlined"
-                      onChange={this.handlePasswordChange}
-                    />
+                  <Grid item xs={7}>
+                    <Grid container direction="column" spacing={2}>
+                      <Grid item xs>
+                        <TextField
+                          autoComplete="email"
+                          disabled={performingAction}
+                          error={!!(errors && errors.emailAddress)}
+                          fullWidth
+                          helperText={
+                            errors && errors.emailAddress
+                              ? errors.emailAddress[0]
+                              : ""
+                          }
+                          label="E-mail address"
+                          placeholder="john@doe.com"
+                          required
+                          type="email"
+                          value={emailAddress}
+                          variant="outlined"
+                          onChange={this.handleEmailAddressChange}
+                        />
+                      </Grid>
+
+                      <Grid item xs>
+                        <TextField
+                          autoComplete="current-password"
+                          disabled={performingAction}
+                          error={!!(errors && errors.password)}
+                          fullWidth
+                          helperText={
+                            errors && errors.password ? errors.password[0] : ""
+                          }
+                          label="Password"
+                          placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                          required
+                          type="password"
+                          value={password}
+                          variant="outlined"
+                          onChange={this.handlePasswordChange}
+                        />
+                      </Grid>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Grid>
+                </>
+              )}
             </Grid>
           </Hidden>
 
@@ -478,60 +486,66 @@ class SignInDialog extends Component {
               onAuthProviderClick={this.signInWithAuthProvider}
             />
 
-            <Grid container direction="column" spacing={2}>
-              <Grid item xs>
-                <TextField
-                  autoComplete="email"
-                  disabled={performingAction}
-                  error={!!(errors && errors.emailAddress)}
-                  fullWidth
-                  helperText={
-                    errors && errors.emailAddress ? errors.emailAddress[0] : ""
-                  }
-                  label="E-mail address"
-                  placeholder="john@doe.com"
-                  required
-                  type="email"
-                  value={emailAddress}
-                  variant="outlined"
-                  onChange={this.handleEmailAddressChange}
-                />
-              </Grid>
+            {this.emailPassword && (
+              <Grid container direction="column" spacing={2}>
+                <Grid item xs>
+                  <TextField
+                    autoComplete="email"
+                    disabled={performingAction}
+                    error={!!(errors && errors.emailAddress)}
+                    fullWidth
+                    helperText={
+                      errors && errors.emailAddress
+                        ? errors.emailAddress[0]
+                        : ""
+                    }
+                    label="E-mail address"
+                    placeholder="john@doe.com"
+                    required
+                    type="email"
+                    value={emailAddress}
+                    variant="outlined"
+                    onChange={this.handleEmailAddressChange}
+                  />
+                </Grid>
 
-              <Grid item xs>
-                <TextField
-                  autoComplete="current-password"
-                  disabled={performingAction}
-                  error={!!(errors && errors.password)}
-                  fullWidth
-                  helperText={
-                    errors && errors.password ? errors.password[0] : ""
-                  }
-                  label="Password"
-                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                  required
-                  type="password"
-                  value={password}
-                  variant="outlined"
-                  onChange={this.handlePasswordChange}
-                />
+                <Grid item xs>
+                  <TextField
+                    autoComplete="current-password"
+                    disabled={performingAction}
+                    error={!!(errors && errors.password)}
+                    fullWidth
+                    helperText={
+                      errors && errors.password ? errors.password[0] : ""
+                    }
+                    label="Password"
+                    placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                    required
+                    type="password"
+                    value={password}
+                    variant="outlined"
+                    onChange={this.handlePasswordChange}
+                  />
+                </Grid>
               </Grid>
-            </Grid>
+            )}
           </Hidden>
         </DialogContent>
 
-        <DialogActions>
-          <Button
-            color="primary"
-            disabled={!emailAddress || performingAction}
-            variant="outlined"
-            onClick={this.resetPassword}
-          >
-            Reset password
-          </Button>
+        {this.emailPassword && (
+          <DialogActions>
+            <Button
+              color="primary"
+              disabled={!emailAddress || performingAction}
+              variant="outlined"
+              onClick={this.resetPassword}
+            >
+              Reset password
+            </Button>
 
-          {this.getSignInButton()}
-        </DialogActions>
+            {this.getSignInButton()}
+          </DialogActions>
+        )}
       </Dialog>
     );
   }
