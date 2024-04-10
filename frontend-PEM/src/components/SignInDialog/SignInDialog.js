@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 
 import PropTypes from "prop-types";
 
@@ -55,16 +55,12 @@ const initialState = {
   errors: null,
 };
 
-class SignInDialog extends Component {
-  constructor(props) {
-    super(props);
+function SignInDialog(props) {
+  let [state, setState] = useState(initialState);
+  let [emailPassword, setEmailPassword] = useState(true);
 
-    this.state = initialState;
-    this.emailPassword = false;
-  }
-
-  getSignInButton = () => {
-    const { emailAddress, password, performingAction } = this.state;
+  const getSignInButton = () => {
+    const { emailAddress, password, performingAction } = state;
 
     if (emailAddress && !password) {
       return (
@@ -72,7 +68,7 @@ class SignInDialog extends Component {
           color="primary"
           disabled={!emailAddress || performingAction}
           variant="contained"
-          onClick={() => this.sendSignInLinkToEmail()}
+          onClick={() => sendSignInLinkToEmail()}
         >
           Send sign-in link
         </Button>
@@ -84,15 +80,15 @@ class SignInDialog extends Component {
         color="primary"
         disabled={!emailAddress || performingAction}
         variant="contained"
-        onClick={() => this.signIn()}
+        onClick={() => signIn()}
       >
         Sign in
       </Button>
     );
   };
 
-  resetPassword = () => {
-    const { emailAddress } = this.state;
+  const resetPassword = () => {
+    const { emailAddress } = state;
 
     const errors = validate(
       {
@@ -104,61 +100,57 @@ class SignInDialog extends Component {
     );
 
     if (errors) {
-      this.setState({
+      setState({
+        ...state,
         errors: errors,
       });
     } else {
-      this.setState(
-        {
-          errors: null,
-        },
-        () => {
-          this.setState(
-            {
-              performingAction: true,
-            },
-            () => {
-              authentication
-                .resetPassword(emailAddress)
-                .then((value) => {
-                  this.props.openSnackbar(
-                    `Sent password reset e-mail to ${emailAddress}`
-                  );
-                })
-                .catch((reason) => {
-                  const code = reason.code;
-                  const message = reason.message;
+      setState({
+        ...state,
+        errors: null,
+      });
 
-                  switch (code) {
-                    case "auth/invalid-email":
-                    case "auth/missing-android-pkg-name":
-                    case "auth/missing-continue-uri":
-                    case "auth/missing-ios-bundle-id":
-                    case "auth/invalid-continue-uri":
-                    case "auth/unauthorized-continue-uri":
-                    case "auth/user-not-found":
-                      this.props.openSnackbar(message);
-                      return;
+      setState({
+        ...state,
+        performingAction: true,
+      });
 
-                    default:
-                      this.props.openSnackbar(message);
-                      return;
-                  }
-                })
-                .finally(() => {
-                  this.setState({
-                    performingAction: false,
-                  });
-                });
-            }
-          );
-        }
-      );
+      authentication
+        .resetPassword(emailAddress)
+        .then((value) => {
+          props.openSnackbar(`Sent password reset e-mail to ${emailAddress}`);
+        })
+        .catch((reason) => {
+          const code = reason.code;
+          const message = reason.message;
+
+          switch (code) {
+            case "auth/invalid-email":
+            case "auth/missing-android-pkg-name":
+            case "auth/missing-continue-uri":
+            case "auth/missing-ios-bundle-id":
+            case "auth/invalid-continue-uri":
+            case "auth/unauthorized-continue-uri":
+            case "auth/user-not-found":
+              props.openSnackbar(message);
+              return;
+
+            default:
+              props.openSnackbar(message);
+              return;
+          }
+        })
+        .finally(() => {
+          setState({
+            ...state,
+            performingAction: false,
+          });
+        });
     }
   };
 
-  signIn = () => {
-    const { emailAddress, password } = this.state;
+  const signIn = () => {
+    const { emailAddress, password } = state;
 
     const errors = validate(
       {
@@ -172,63 +164,61 @@ class SignInDialog extends Component {
     );
 
     if (errors) {
-      this.setState({
+      setState({
+        ...state,
         errors: errors,
       });
     } else {
-      this.setState(
-        {
-          performingAction: true,
-          errors: null,
-        },
-        () => {
-          authentication
-            .signIn(emailAddress, password)
-            .then((user) => {
-              this.props.dialogProps.onClose(() => {
-                const displayName = user.displayName;
-                const emailAddress = user.email;
+      setState({
+        ...state,
+        performingAction: true,
+        errors: null,
+      });
 
-                let hash = crypto
-                  .createHash("sha1")
-                  .update(emailAddress + password)
-                  .digest("hex");
-                localStorage.setItem("hash", hash);
+      authentication
+        .signIn(emailAddress, password)
+        .then((user) => {
+          props.dialogProps.onClose(() => {
+            const displayName = user.displayName;
+            const emailAddress = user.email;
 
-                this.props.openSnackbar(
-                  `Signed in as ${displayName || emailAddress}`
-                );
-              });
-            })
-            .catch((reason) => {
-              const code = reason.code;
-              const message = reason.message;
+            let hash = crypto
+              .createHash("sha1")
+              .update(emailAddress + password)
+              .digest("hex");
+            localStorage.setItem("hash", hash);
 
-              switch (code) {
-                case "auth/invalid-email":
-                case "auth/user-disabled":
-                case "auth/user-not-found":
-                case "auth/wrong-password":
-                  this.props.openSnackbar(message);
-                  return;
+            props.openSnackbar(`Signed in as ${displayName || emailAddress}`);
+          });
+        })
+        .catch((reason) => {
+          const code = reason.code;
+          const message = reason.message;
 
-                default:
-                  this.props.openSnackbar(message);
-                  return;
-              }
-            })
-            .finally(() => {
-              this.setState({
-                performingAction: false,
-              });
-            });
-        }
-      );
+          switch (code) {
+            case "auth/invalid-email":
+            case "auth/user-disabled":
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+              props.openSnackbar(message);
+              return;
+
+            default:
+              props.openSnackbar(message);
+              return;
+          }
+        })
+        .finally(() => {
+          setState({
+            ...state,
+            performingAction: false,
+          });
+        });
     }
   };
 
-  sendSignInLinkToEmail = () => {
-    const { emailAddress } = this.state;
+  const sendSignInLinkToEmail = () => {
+    const { emailAddress } = state;
 
     const errors = validate(
       {
@@ -240,105 +230,102 @@ class SignInDialog extends Component {
     );
 
     if (errors) {
-      this.setState({
+      setState({
+        ...state,
         errors: errors,
       });
 
       return;
     }
 
-    this.setState(
-      {
-        performingAction: true,
-        errors: null,
-      },
-      () => {
-        authentication
-          .sendSignInLinkToEmail(emailAddress)
-          .then(() => {
-            this.props.dialogProps.onClose(() => {
-              this.props.openSnackbar(`Sent sign-in e-mail to ${emailAddress}`);
-            });
-          })
-          .catch((reason) => {
-            const code = reason.code;
-            const message = reason.message;
+    setState({
+      ...state,
+      performingAction: true,
+      errors: null,
+    });
 
-            switch (code) {
-              case "auth/argument-error":
-              case "auth/invalid-email":
-              case "auth/missing-android-pkg-name":
-              case "auth/missing-continue-uri":
-              case "auth/missing-ios-bundle-id":
-              case "auth/invalid-continue-uri":
-              case "auth/unauthorized-continue-uri":
-                this.props.openSnackbar(message);
-                return;
+    authentication
+      .sendSignInLinkToEmail(emailAddress)
+      .then(() => {
+        props.dialogProps.onClose(() => {
+          props.openSnackbar(`Sent sign-in e-mail to ${emailAddress}`);
+        });
+      })
+      .catch((reason) => {
+        const code = reason.code;
+        const message = reason.message;
 
-              default:
-                this.props.openSnackbar(message);
-                return;
-            }
-          })
-          .finally(() => {
-            this.setState({
-              performingAction: false,
-            });
-          });
-      }
-    );
+        switch (code) {
+          case "auth/argument-error":
+          case "auth/invalid-email":
+          case "auth/missing-android-pkg-name":
+          case "auth/missing-continue-uri":
+          case "auth/missing-ios-bundle-id":
+          case "auth/invalid-continue-uri":
+          case "auth/unauthorized-continue-uri":
+            props.openSnackbar(message);
+            return;
+
+          default:
+            props.openSnackbar(message);
+            return;
+        }
+      })
+      .finally(() => {
+        setState({
+          ...state,
+          performingAction: false,
+        });
+      });
   };
 
-  signInWithAuthProvider = (providerId) => {
-    this.setState(
-      {
-        performingAction: true,
-      },
-      () => {
-        authentication
-          .signInWithAuthProvider(providerId)
-          .then((user) => {
-            this.props.dialogProps.onClose(() => {
-              const displayName = user.displayName;
-              const emailAddress = user.email;
+  const signInWithAuthProvider = (providerId) => {
+    setState({
+      ...state,
+      performingAction: true,
+    });
 
-              this.props.openSnackbar(
-                `Signed in as ${displayName || emailAddress}`
-              );
-            });
-          })
-          .catch((reason) => {
-            const code = reason.code;
-            const message = reason.message;
+    authentication
+      .signInWithAuthProvider(providerId)
+      .then((user) => {
+        props.dialogProps.onClose(() => {
+          const displayName = user.displayName;
+          const emailAddress = user.email;
 
-            switch (code) {
-              case "auth/account-exists-with-different-credential":
-              case "auth/auth-domain-config-required":
-              case "auth/cancelled-popup-request":
-              case "auth/operation-not-allowed":
-              case "auth/operation-not-supported-in-this-environment":
-              case "auth/popup-blocked":
-              case "auth/popup-closed-by-user":
-              case "auth/unauthorized-domain":
-                this.props.openSnackbar(message);
-                return;
+          props.openSnackbar(`Signed in as ${displayName || emailAddress}`);
+        });
+      })
+      .catch((reason) => {
+        const code = reason.code;
+        const message = reason.message;
 
-              default:
-                this.props.openSnackbar(message);
-                return;
-            }
-          })
-          .finally(() => {
-            this.setState({
-              performingAction: false,
-            });
-          });
-      }
-    );
+        switch (code) {
+          case "auth/account-exists-with-different-credential":
+          case "auth/auth-domain-config-required":
+          case "auth/cancelled-popup-request":
+          case "auth/operation-not-allowed":
+          case "auth/operation-not-supported-in-this-environment":
+          case "auth/popup-blocked":
+          case "auth/popup-closed-by-user":
+          case "auth/unauthorized-domain":
+            props.openSnackbar(message);
+            return;
+
+          default:
+            props.openSnackbar(message);
+            return;
+        }
+      })
+      .finally(() => {
+        setState({
+          ...state,
+          performingAction: false,
+        });
+      });
   };
 
-  handleKeyPress = (event) => {
-    const { emailAddress, password } = this.state;
+  const handleKeyPress = (event) => {
+    const { emailAddress, password } = state;
 
     if (!emailAddress && !password) {
       return;
@@ -352,203 +339,198 @@ class SignInDialog extends Component {
 
     if (key === "Enter") {
       if (emailAddress && !password) {
-        this.sendSignInLinkToEmail();
+        sendSignInLinkToEmail();
       } else {
-        this.signIn();
+        signIn();
       }
     }
   };
 
-  handleExited = () => {
-    this.setState(initialState);
+  const handleExited = () => {
+    setState(initialState);
   };
 
-  handleEmailAddressChange = (event) => {
+  const handleEmailAddressChange = (event) => {
     const emailAddress = event.target.value;
 
-    this.setState({
+    setState({
+      ...state,
       emailAddress: emailAddress,
     });
   };
 
-  handlePasswordChange = (event) => {
+  const handlePasswordChange = (event) => {
     const password = event.target.value;
 
-    this.setState({
+    setState({
+      ...state,
       password: password,
     });
   };
 
-  render() {
-    // Styling
-    const { classes } = this.props;
+  // Styling
+  const { classes } = props;
 
-    // Dialog Properties
-    const { dialogProps } = this.props;
+  // Dialog Properties
+  const { dialogProps } = props;
 
-    const { performingAction, emailAddress, password, errors } = this.state;
+  const { performingAction, emailAddress, password, errors } = state;
 
-    return (
-      <Dialog
-        fullWidth
-        maxWidth="sm"
-        disableBackdropClick={performingAction}
-        disableEscapeKeyDown={performingAction}
-        {...dialogProps}
-        onKeyPress={this.handleKeyPress}
-        onExited={this.handleExited}
-      >
-        <DialogTitle disableTypography>
-          <Typography variant="h6">Sign in to your account</Typography>
+  return (
+    <Dialog
+      fullWidth
+      maxWidth="sm"
+      disableBackdropClick={performingAction}
+      disableEscapeKeyDown={performingAction}
+      {...dialogProps}
+      onKeyPress={handleKeyPress}
+      onExited={handleExited}
+    >
+      <DialogTitle disableTypography>
+        <Typography variant="h6">Sign in to your account</Typography>
 
-          <Tooltip title="Close">
-            <IconButton
-              className={classes.closeButton}
-              disabled={performingAction}
-              onClick={dialogProps.onClose}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
-        </DialogTitle>
+        <Tooltip title="Close">
+          <IconButton
+            className={classes.closeButton}
+            disabled={performingAction}
+            onClick={dialogProps.onClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
+      </DialogTitle>
 
-        <DialogContent>
-          <Hidden xsDown>
-            <Grid container direction="row">
-              <Grid item xs={this.emailPassword ? 4 : 11}>
-                <AuthProviderList
-                  performingAction={performingAction}
-                  onAuthProviderClick={this.signInWithAuthProvider}
+      <DialogContent>
+        <Hidden xsDown>
+          <Grid container direction="row">
+            <Grid item xs={emailPassword ? 4 : 11}>
+              <AuthProviderList
+                performingAction={performingAction}
+                onAuthProviderClick={signInWithAuthProvider}
+              />
+            </Grid>
+
+            {emailPassword && (
+              <>
+                <Grid item xs={1}>
+                  <Divider className={classes.divider} orientation="vertical" />
+                </Grid>
+
+                <Grid item xs={7}>
+                  <Grid container direction="column" spacing={2}>
+                    <Grid item xs>
+                      <TextField
+                        autoComplete="email"
+                        disabled={performingAction}
+                        error={!!(errors && errors.emailAddress)}
+                        fullWidth
+                        helperText={
+                          errors && errors.emailAddress
+                            ? errors.emailAddress[0]
+                            : ""
+                        }
+                        label="E-mail address"
+                        placeholder="john@doe.com"
+                        required
+                        type="email"
+                        value={emailAddress}
+                        variant="outlined"
+                        onChange={handleEmailAddressChange}
+                      />
+                    </Grid>
+
+                    <Grid item xs>
+                      <TextField
+                        autoComplete="current-password"
+                        disabled={performingAction}
+                        error={!!(errors && errors.password)}
+                        fullWidth
+                        helperText={
+                          errors && errors.password ? errors.password[0] : ""
+                        }
+                        label="Password"
+                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                        required
+                        type="password"
+                        value={password}
+                        variant="outlined"
+                        onChange={handlePasswordChange}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+          </Grid>
+        </Hidden>
+
+        <Hidden smUp>
+          <AuthProviderList
+            gutterBottom
+            performingAction={performingAction}
+            onAuthProviderClick={signInWithAuthProvider}
+          />
+
+          {emailPassword && (
+            <Grid container direction="column" spacing={2}>
+              <Grid item xs>
+                <TextField
+                  autoComplete="email"
+                  disabled={performingAction}
+                  error={!!(errors && errors.emailAddress)}
+                  fullWidth
+                  helperText={
+                    errors && errors.emailAddress ? errors.emailAddress[0] : ""
+                  }
+                  label="E-mail address"
+                  placeholder="john@doe.com"
+                  required
+                  type="email"
+                  value={emailAddress}
+                  variant="outlined"
+                  onChange={handleEmailAddressChange}
                 />
               </Grid>
 
-              {this.emailPassword && (
-                <>
-                  <Grid item xs={1}>
-                    <Divider
-                      className={classes.divider}
-                      orientation="vertical"
-                    />
-                  </Grid>
-
-                  <Grid item xs={7}>
-                    <Grid container direction="column" spacing={2}>
-                      <Grid item xs>
-                        <TextField
-                          autoComplete="email"
-                          disabled={performingAction}
-                          error={!!(errors && errors.emailAddress)}
-                          fullWidth
-                          helperText={
-                            errors && errors.emailAddress
-                              ? errors.emailAddress[0]
-                              : ""
-                          }
-                          label="E-mail address"
-                          placeholder="john@doe.com"
-                          required
-                          type="email"
-                          value={emailAddress}
-                          variant="outlined"
-                          onChange={this.handleEmailAddressChange}
-                        />
-                      </Grid>
-
-                      <Grid item xs>
-                        <TextField
-                          autoComplete="current-password"
-                          disabled={performingAction}
-                          error={!!(errors && errors.password)}
-                          fullWidth
-                          helperText={
-                            errors && errors.password ? errors.password[0] : ""
-                          }
-                          label="Password"
-                          placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                          required
-                          type="password"
-                          value={password}
-                          variant="outlined"
-                          onChange={this.handlePasswordChange}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </>
-              )}
-            </Grid>
-          </Hidden>
-
-          <Hidden smUp>
-            <AuthProviderList
-              gutterBottom
-              performingAction={performingAction}
-              onAuthProviderClick={this.signInWithAuthProvider}
-            />
-
-            {this.emailPassword && (
-              <Grid container direction="column" spacing={2}>
-                <Grid item xs>
-                  <TextField
-                    autoComplete="email"
-                    disabled={performingAction}
-                    error={!!(errors && errors.emailAddress)}
-                    fullWidth
-                    helperText={
-                      errors && errors.emailAddress
-                        ? errors.emailAddress[0]
-                        : ""
-                    }
-                    label="E-mail address"
-                    placeholder="john@doe.com"
-                    required
-                    type="email"
-                    value={emailAddress}
-                    variant="outlined"
-                    onChange={this.handleEmailAddressChange}
-                  />
-                </Grid>
-
-                <Grid item xs>
-                  <TextField
-                    autoComplete="current-password"
-                    disabled={performingAction}
-                    error={!!(errors && errors.password)}
-                    fullWidth
-                    helperText={
-                      errors && errors.password ? errors.password[0] : ""
-                    }
-                    label="Password"
-                    placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                    required
-                    type="password"
-                    value={password}
-                    variant="outlined"
-                    onChange={this.handlePasswordChange}
-                  />
-                </Grid>
+              <Grid item xs>
+                <TextField
+                  autoComplete="current-password"
+                  disabled={performingAction}
+                  error={!!(errors && errors.password)}
+                  fullWidth
+                  helperText={
+                    errors && errors.password ? errors.password[0] : ""
+                  }
+                  label="Password"
+                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                  required
+                  type="password"
+                  value={password}
+                  variant="outlined"
+                  onChange={handlePasswordChange}
+                />
               </Grid>
-            )}
-          </Hidden>
-        </DialogContent>
+            </Grid>
+          )}
+        </Hidden>
+      </DialogContent>
 
-        {this.emailPassword && (
-          <DialogActions>
-            <Button
-              color="primary"
-              disabled={!emailAddress || performingAction}
-              variant="outlined"
-              onClick={this.resetPassword}
-            >
-              Reset password
-            </Button>
+      {emailPassword && (
+        <DialogActions>
+          <Button
+            color="primary"
+            disabled={!emailAddress || performingAction}
+            variant="outlined"
+            onClick={resetPassword}
+          >
+            Reset password
+          </Button>
 
-            {this.getSignInButton()}
-          </DialogActions>
-        )}
-      </Dialog>
-    );
-  }
+          {getSignInButton()}
+        </DialogActions>
+      )}
+    </Dialog>
+  );
 }
 
 SignInDialog.propTypes = {
