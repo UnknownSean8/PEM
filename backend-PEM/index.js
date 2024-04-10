@@ -8,6 +8,9 @@ import connectDB from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import userRoutes from "./routes/userRoutes.js";
 import quizRoutes from "./routes/quizRoutes.js";
+import blockContentRoutes from "./routes/blockContentRoutes.js";
+import blockPageRoutes from "./routes/blockPageRoutes.js";
+import groupContentRoutes from "./routes/groupContentRoutes.js";
 
 import passport from "passport";
 import session from "express-session";
@@ -48,7 +51,9 @@ configurePassport(passport);
 // */
 // );
 
-app.use("/api/quiz", quizRoutes);
+app.use("/api/blockContent", blockContentRoutes);
+app.use("/api/blockPage", blockPageRoutes);
+app.use("/api/groupContent", groupContentRoutes);
 
 app.get("/", (req, res) => res.send("Server is ready."));
 

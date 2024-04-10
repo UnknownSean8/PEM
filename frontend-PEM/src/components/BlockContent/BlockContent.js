@@ -41,6 +41,24 @@ async function getCompletedList(blockGroupTitle) {
   return [];
 }
 
+async function getBlockContentList() {
+  try {
+    const blockContent = await fetch(
+      "http://localhost:8136/api/blockContent/",
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+        },
+      }
+    );
+
+    return blockContent.json();
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 function BlockContent(props) {
   let gr = window.location.toString().split("/blockGroup/")[1];
   let group = gr.replace(/_/g, " ");
@@ -113,12 +131,11 @@ function BlockContent(props) {
       });
 
     async function getGroupDetails() {
-      const bg = await groupDocumentReference.get();
+      const bg = await getBlockContentList();
       let completedList = await getCompletedList(gr);
 
       let newState;
-      bg.forEach((doc) => {
-        let data = doc.data();
+      bg["blockGroupsList"].forEach((data) => {
         if (data.title.replace(/_/g, " ") === group) {
           newState = {
             title: data.title,
