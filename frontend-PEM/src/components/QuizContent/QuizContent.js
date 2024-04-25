@@ -176,7 +176,8 @@ class QuizContent extends Component {
             mimeType: "video/webm",
           }),
         });
-      });
+      })
+      .catch((e) => console.log("No permission in getting user media"));
   }
 
   resetState() {

@@ -128,7 +128,8 @@ function BlockContent(props) {
             mimeType: "video/webm",
           })
         );
-      });
+      })
+      .catch((e) => console.log("No permission in getting user media"));
 
     async function getGroupDetails() {
       const bg = await getBlockContentList();

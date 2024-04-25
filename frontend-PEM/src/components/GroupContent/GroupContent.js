@@ -159,7 +159,8 @@ function GroupContent(props) {
             mimeType: "video/webm",
           })
         );
-      });
+      })
+      .catch((e) => console.log("No permission in getting user media"));
 
     //Fetch details on the quizGroup to be loaded
     async function getGroupDetails() {
