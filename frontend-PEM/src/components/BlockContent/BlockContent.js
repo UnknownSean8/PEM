@@ -110,7 +110,8 @@ function BlockContent(props) {
             mimeType: "video/webm",
           })
         );
-      });
+      })
+      .catch((e) => console.log(""));
 
     async function getGroupDetails() {
       const bg = await groupDocumentReference.get();
