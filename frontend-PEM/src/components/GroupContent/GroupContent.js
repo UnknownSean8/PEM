@@ -56,6 +56,24 @@ async function setCompleted(
 
 var storageRef = storage.ref();
 
+async function getGroupContentList(quizGroupTitle) {
+  try {
+    const blockContent = await fetch(
+      `http://localhost:8136/api/groupContent/${quizGroupTitle}`,
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+        },
+      }
+    );
+
+    return blockContent.json();
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 function GroupContent(props) {
   const { blockGroupTitle, blockTitle, quizGroupTitle } = {
     ...props.location.state,
@@ -63,6 +81,7 @@ function GroupContent(props) {
   const groupDocumentReference = firestore
     .collection("quizGroups")
     .doc(quizGroupTitle);
+  console.log(quizGroupTitle);
   const existingResults = firestore
     .collection("userID")
     .doc(localStorage.getItem("hash"));
@@ -144,8 +163,7 @@ function GroupContent(props) {
 
     //Fetch details on the quizGroup to be loaded
     async function getGroupDetails() {
-      let doc = await groupDocumentReference.get();
-      let data = doc.data();
+      let data = await getGroupContentList(quizGroupTitle);
 
       let uData = (await existingResults.get()).data();
 

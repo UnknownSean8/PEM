@@ -84,6 +84,21 @@ async function setCompleted(blockGroupTitle, blockTitle, listA, listB) {
   } else return;
 }
 
+async function getBlockContentList() {
+  try {
+    const blockContent = await fetch("http://localhost:8136/api/blockPage/", {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+      },
+    });
+
+    return blockContent.json();
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 function BlockPage(props) {
   const groupDocumentReference = firestore.collection("blockGroups");
   const classes = useStyles();
@@ -100,16 +115,15 @@ function BlockPage(props) {
 
   useEffect(() => {
     const fetchBlock = async () => {
-      let blockGroups = await groupDocumentReference.get();
+      let blockGroups = await getBlockContentList();
       let completeList = await getCompletedList(
         props.location.state.blockGroupTitle,
         props.location.state.blockTitle
       );
 
-      blockGroups.forEach((doc) => {
-        let blockGroup = doc.data();
+      blockGroups["blockGroupsList"].forEach((blockGroup) => {
         if (
-          blockGroup.title ===
+          blockGroup.title.replace(/_/g, " ") ===
           props.location.state.blockGroupTitle.replace(/_/g, " ")
         ) {
           blockGroup.blockList.forEach((block) => {

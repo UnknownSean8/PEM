@@ -3,7 +3,13 @@ import Box from "@material-ui/core/Box";
 
 import PropTypes from "prop-types";
 
-import { BrowserRouter, Switch, Redirect, Route, withRouter } from "react-router-dom";
+import {
+  BrowserRouter,
+  Switch,
+  Redirect,
+  Route,
+  withRouter,
+} from "react-router-dom";
 
 import HomeContent from "../HomeContent";
 import AdminContent from "../AdminContent";
@@ -42,10 +48,25 @@ class Router extends Component {
             path="/blockGroup"
             render={({ match: { url } }) => (
               <>
-                <Route path={`${url}/:block_group`} component={BlockContent} exact />
-                <Route path={`${url}/:block_group/block/:block_title`} component={BlockPage} exact/>
-                <Route path={`${url}/:block_group/block/:block_title/quizGroup/:group_title`} component={GroupContent} exact />
-                <Route path={`${url}/:block_group/block/:block_title/quizGroup/:group_title/quiz/:quiz_title`} component={QuizContent}/>
+                <Route
+                  path={`${url}/:block_group`}
+                  component={BlockContent}
+                  exact
+                />
+                <Route
+                  path={`${url}/:block_group/block/:block_title`}
+                  component={BlockPage}
+                  exact
+                />
+                <Route
+                  path={`${url}/:block_group/block/:block_title/quizGroup/:group_title`}
+                  component={GroupContent}
+                  exact
+                />
+                <Route
+                  path={`${url}/:block_group/block/:block_title/quizGroup/:group_title/quiz/:quiz_title`}
+                  component={QuizContent}
+                />
               </>
             )}
           />
@@ -76,7 +97,7 @@ Router.propTypes = {
   bar: PropTypes.element,
 
   // Functions
-  openSnackbar: PropTypes.func.isRequired
+  openSnackbar: PropTypes.func.isRequired,
 };
 
 export default Router;
