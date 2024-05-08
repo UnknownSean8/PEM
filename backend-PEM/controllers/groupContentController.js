@@ -12,7 +12,7 @@ const GroupContent = asyncHandler(async (req, res) => {
   const groupContentList = {};
 
   groupContentSnapshot.docs.map(
-    (doc) => (groupContentList[doc.id] = doc.data())
+    (doc) => (groupContentList[doc.id] = doc.data()),
   );
 
   const groupContentRes = groupContentList[quizGroupTitle];
