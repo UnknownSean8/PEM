@@ -85,4 +85,5 @@ app.get("/", (req, res) => res.send("Server is ready."));
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Listening to port ${port}`));
+app.listen(port, () =>
+  console.log(`Listening to port ${port}`));
