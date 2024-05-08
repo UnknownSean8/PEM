@@ -20,6 +20,7 @@ import swaggerDocument from "./utils/swagger-output.json" assert { type: "json" 
 import cors from "cors";
 import swaggerJSDoc from "swagger-jsdoc";
 
+connectDB();
 const app = express();
 
 const swaggerDefinition = {
@@ -57,6 +58,8 @@ const swaggerSpec = swaggerJSDoc(options);
 // app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(cors());
 
@@ -75,6 +78,7 @@ configurePassport(passport);
 app.use("/api/blockContent", blockContentRoutes);
 app.use("/api/blockPage", blockPageRoutes);
 app.use("/api/groupContent", groupContentRoutes);
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => res.send("Server is ready."));
 
